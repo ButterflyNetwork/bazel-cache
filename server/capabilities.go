@@ -10,7 +10,7 @@ import (
 func (cs *cacheServer) GetCapabilities(ctx context.Context, req *pb.GetCapabilitiesRequest) (*pb.ServerCapabilities, error) {
 	resp := pb.ServerCapabilities{
 		CacheCapabilities: &pb.CacheCapabilities{
-			DigestFunction: []pb.DigestFunction_Value{
+			DigestFunctions: []pb.DigestFunction_Value{
 				pb.DigestFunction_SHA256,
 			},
 			ActionCacheUpdateCapabilities: &pb.ActionCacheUpdateCapabilities{
@@ -24,8 +24,10 @@ func (cs *cacheServer) GetCapabilities(ctx context.Context, req *pb.GetCapabilit
 					},
 				},
 			},
-			MaxBatchTotalSizeBytes:      0,
-			SymlinkAbsolutePathStrategy: pb.SymlinkAbsolutePathStrategy_ALLOWED,
+			MaxBatchTotalSizeBytes:          0,
+			SymlinkAbsolutePathStrategy:     pb.SymlinkAbsolutePathStrategy_ALLOWED,
+			SupportedCompressors:            []pb.Compressor_Value{},
+			SupportedBatchUpdateCompressors: []pb.Compressor_Value{},
 		},
 		LowApiVersion: &semver.SemVer{
 			Major: 2,

@@ -1,5 +1,5 @@
 IMAGE := znly/bazel-cache
-VERSION := 0.1.1
+VERSION := 0.1.3
 
 .PHONY: bazel-cache
 bazel-cache:
@@ -7,4 +7,4 @@ bazel-cache:
 
 .PHONY: image
 image:
-	docker build -t $(IMAGE):$(VERSION) .
+	docker buildx build --load --platform linux/amd64 -t $(IMAGE):$(VERSION) .

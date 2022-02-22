@@ -2,8 +2,6 @@ package server
 
 import (
 	"context"
-	"crypto/sha256"
-	"encoding/hex"
 	"errors"
 	"sync"
 
@@ -22,22 +20,6 @@ var (
 	ErrACNotFound = errors.New("ActionResult not found or not complete")
 )
 
-func digestFromContent(data []byte) *pb.Digest {
-	h := sha256.Sum256(data)
-	return &pb.Digest{
-		Hash:      hex.EncodeToString(h[:]),
-		SizeBytes: int64(len(data)),
-	}
-}
-
-func actionCacheKey(key, instance string) string {
-	if instance == "" {
-		return key
-	}
-	h := sha256.Sum256([]byte(key + instance))
-	return hex.EncodeToString(h[:])
-}
-
 func shouldWrite(digest *pb.Digest, data []byte) bool {
 	if digest == nil {
 		return false
@@ -55,10 +37,10 @@ func (cs *cacheServer) acGetWithValidatedDependencies(ctx context.Context, diges
 	digestsToCheck := []*pb.Digest{}
 	digestsToCheckMu := &sync.Mutex{}
 
-	if result.StdoutDigest != nil && utils.IsEmptyHash(result.StdoutDigest.Hash) == false {
+	if result.StdoutDigest != nil && !utils.IsEmptyHash(result.StdoutDigest.Hash) {
 		digestsToCheck = append(digestsToCheck, result.StdoutDigest)
 	}
-	if result.StderrDigest != nil && utils.IsEmptyHash(result.StderrDigest.Hash) == false {
+	if result.StderrDigest != nil && !utils.IsEmptyHash(result.StderrDigest.Hash) {
 		digestsToCheck = append(digestsToCheck, result.StderrDigest)
 	}
 

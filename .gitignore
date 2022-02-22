@@ -5,6 +5,9 @@
 *.so
 *.dylib
 
+# In-tree built binary.
+bazel-cache
+
 # Test binary, built with `go test -c`
 *.test
 
@@ -13,3 +16,6 @@
 
 # Dependency directories (remove the comment below to include it)
 # vendor/
+
+# TODO: use envrc for deploy.sh
+deploy.sh
