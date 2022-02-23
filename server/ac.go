@@ -110,8 +110,6 @@ func (cs *cacheServer) GetActionResult(ctx context.Context, req *pb.GetActionRes
 		zap.String("request.instance_name", req.InstanceName),
 	)
 
-	resp := &pb.ActionResult{}
-
 	if err := utils.ValidateHash(req.ActionDigest.Hash, req.ActionDigest.SizeBytes); err != nil {
 		logger.With(zap.Error(err)).Error("hash is not valid")
 		return nil, status.Error(codes.InvalidArgument, err.Error())

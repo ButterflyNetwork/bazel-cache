@@ -3,7 +3,6 @@ package server
 import (
 	"context"
 	"errors"
-	"fmt"
 	"net"
 	"net/http"
 	"strings"
@@ -19,6 +18,7 @@ import (
 	"google.golang.org/genproto/googleapis/bytestream"
 	"google.golang.org/grpc"
 	_ "google.golang.org/grpc/encoding/gzip" // Register gzip support.
+	"google.golang.org/grpc/health/grpc_health_v1"
 	"google.golang.org/grpc/reflection"
 
 	"github.com/znly/bazel-cache/cache"
@@ -62,7 +62,6 @@ func init() {
 }
 
 func newHTTPandGRPCMux(
-	http1Hand http.Handler,
 	http2Hand http.Handler,
 	grpcHandler http.Handler,
 ) http.Handler {
@@ -109,11 +108,11 @@ var ServeCmd = &cobra.Command{
 		bytestream.RegisterByteStreamServer(grpcServer, cs)
 		reflection.Register(grpcServer)
 
-		http1Mux := http.NewServeMux()
-		http1Mux.HandleFunc("/", home)
+		mySvc := &MyGrpcService{}
+		grpc_health_v1.RegisterHealthServer(grpcServer, mySvc)
+
 		http2Mux := http.NewServeMux()
 		mixedHandler := newHTTPandGRPCMux(
-			http1Mux,
 			http2Mux,
 			grpcServer,
 		)
@@ -141,6 +140,14 @@ var ServeCmd = &cobra.Command{
 	},
 }
 
-func home(w http.ResponseWriter, r *http.Request) {
-	fmt.Fprintf(w, "Hello from http handler!\n")
+type MyGrpcService struct {
+	grpc_health_v1.UnimplementedHealthServer
+}
+
+func (m *MyGrpcService) Check(_ context.Context, _ *grpc_health_v1.HealthCheckRequest) (*grpc_health_v1.HealthCheckResponse, error) {
+	return &grpc_health_v1.HealthCheckResponse{Status: grpc_health_v1.HealthCheckResponse_SERVING}, nil
+}
+
+func (m *MyGrpcService) Watch(_ *grpc_health_v1.HealthCheckRequest, _ grpc_health_v1.Health_WatchServer) error {
+	panic("not yet implemented")
 }

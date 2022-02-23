@@ -18,7 +18,12 @@ var globalFlags = struct {
 }{}
 
 func init() {
-	rootCmd.PersistentFlags().VarP((*utils.ZapLogLevelFlag)(&globalFlags.loglevel), "loglevel", "l", "Log Level")
+	rootCmd.PersistentFlags().VarP(
+		(*utils.ZapLogLevelFlag)(&globalFlags.loglevel),
+		"loglevel",
+		"l",
+		"Log Level",
+	)
 
 	rootCmd.AddCommand(server.ServeCmd)
 }
@@ -53,8 +58,4 @@ func main() {
 	if err := rootCmd.Execute(); err != nil {
 		panic(err)
 	}
-}
-
-func Contains(s []string, defaultCmd string) {
-	panic("unimplemented")
 }
