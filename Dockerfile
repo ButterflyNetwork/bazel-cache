@@ -1,4 +1,4 @@
-FROM golang:1.16.0-alpine3.13 as build
+FROM golang:1.18.0-bullseye as build
 WORKDIR /app
 ADD . /app
 RUN go get -d -v ./...
