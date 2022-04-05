@@ -35,7 +35,7 @@ func (cs *cacheServer) FindMissingBlobs(ctx context.Context, req *pb.FindMissing
 		}
 		eg.Go(func() error {
 			found, err := cs.cache.Contains(egCtx, cache.CAS, digest)
-			if found == false || err != nil {
+			if !found || err != nil {
 				logger.With(zap.String("hash", digest.Hash), zap.Error(err)).Info("missing blob")
 				missingBlobDigestsMu.Lock()
 				resp.MissingBlobDigests = append(resp.MissingBlobDigests, digest)
@@ -161,7 +161,7 @@ func (cs *cacheServer) GetTree(req *pb.GetTreeRequest, stream pb.ContentAddressa
 		Directories: make([]*pb.Directory, 0),
 	}
 
-	if utils.IsEmptyHash(req.RootDigest.Hash) == false {
+	if !utils.IsEmptyHash(req.RootDigest.Hash) {
 		if err := utils.ValidateHash(req.RootDigest.Hash, req.RootDigest.SizeBytes); err != nil {
 			return status.Error(codes.InvalidArgument, err.Error())
 		}

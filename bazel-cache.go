@@ -2,6 +2,8 @@ package main
 
 import (
 	"fmt"
+	"os"
+	"strings"
 
 	"github.com/spf13/cobra"
 	"go.uber.org/zap"
@@ -16,7 +18,12 @@ var globalFlags = struct {
 }{}
 
 func init() {
-	rootCmd.PersistentFlags().VarP((*utils.ZapLogLevelFlag)(&globalFlags.loglevel), "loglevel", "l", "Log Level")
+	rootCmd.PersistentFlags().VarP(
+		(*utils.ZapLogLevelFlag)(&globalFlags.loglevel),
+		"loglevel",
+		"l",
+		"Log Level",
+	)
 
 	rootCmd.AddCommand(server.ServeCmd)
 }
@@ -26,9 +33,9 @@ var rootCmd = &cobra.Command{
 	Short: "Minimal cloud oriented Bazel cache",
 	PersistentPreRunE: func(cmd *cobra.Command, args []string) error {
 		logConfig := zap.NewProductionConfig()
-		logConfig.DisableCaller = true
+		logConfig.DisableCaller = false
+		logConfig.Level = zap.NewAtomicLevelAt(zap.DebugLevel)
 
-		logConfig.Level = zap.NewAtomicLevelAt(globalFlags.loglevel)
 		logger, err := logConfig.Build()
 		if err != nil {
 			return fmt.Errorf("unable to create logger: %w", err)
@@ -40,6 +47,14 @@ var rootCmd = &cobra.Command{
 }
 
 func main() {
+	// Default to serve command.
+	defaultCmd := server.ServeCmd.Use
+
+	if !strings.Contains(strings.Join(os.Args, ""), defaultCmd) {
+		// Insert after program name.
+		os.Args = utils.Insert(os.Args, 1, defaultCmd)
+	}
+
 	if err := rootCmd.Execute(); err != nil {
 		panic(err)
 	}

@@ -19,8 +19,7 @@ Usage:
 Flags:
   -c, --cache string           cache uri
   -h, --help                   help for serve
-  -p, --port string            listen address (default ":9092")
-  -e, --port_from_env string   get listen port from an environment variable
+  -a, --listen_addr string     listen address (default ":9092"). If undefined, defaults to ":PORT" from env.
 
 Global Flags:
   -l, --loglevel zapcore.Level   Log Level (default info)
